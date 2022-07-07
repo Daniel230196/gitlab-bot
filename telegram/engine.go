@@ -4,7 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 )
 
@@ -25,13 +28,13 @@ type Engine struct {
 	commands map[string]CommandHandler
 }
 
-func NewEngine() Engine {
-	e := Engine{}
+func NewEngine() *Engine {
+	e := &Engine{}
 	e.init()
 	return e
 }
 
-func (e Engine) init() {
+func (e *Engine) init() {
 	e.url = TelegramUrl + Token
 	e.commands = make(map[string]CommandHandler)
 	e.commands[commandDefault] = &defaultHandler{}
@@ -42,7 +45,7 @@ func (e Engine) init() {
 	e.commands[commandAddYt] = &addYtHandler{}
 }
 
-func (e Engine) ReceiveHook(hook BotHook) BotMessage {
+func (e *Engine) ReceiveHook(hook BotHook) BotMessage {
 	command := e.prepareCommandFromHook(hook)
 
 	handler, ok := e.commands[command.Key]
@@ -54,7 +57,7 @@ func (e Engine) ReceiveHook(hook BotHook) BotMessage {
 	return handler.execute()
 }
 
-func (e Engine) SendMessage(message BotMessage) (status int, err error) {
+func (e *Engine) SendMessage(message BotMessage) (status int, err error) {
 	var response *http.Response
 
 	requestData, err := json.Marshal(message)
@@ -63,8 +66,6 @@ func (e Engine) SendMessage(message BotMessage) (status int, err error) {
 	}
 
 	response, err = http.Post(e.url+sendMessage, "application/json", bytes.NewBuffer(requestData))
-	defer response.Body.Close()
-
 	if err != nil {
 		err = errors.New("Telegram request error:" + err.Error())
 		return
@@ -73,10 +74,18 @@ func (e Engine) SendMessage(message BotMessage) (status int, err error) {
 		err = errors.New("Telegram")
 	}
 	status = response.StatusCode
+	test, err := ioutil.ReadAll(response.Body)
+	if status != 200 {
+		// TODO
+		fmt.Fprint(os.Stderr, string(requestData))
+		fmt.Fprint(os.Stderr, status)
+		fmt.Fprint(os.Stderr, string(test))
+	}
+
 	return
 }
 
-func (e Engine) prepareCommandFromHook(hook BotHook) Command {
+func (e *Engine) prepareCommandFromHook(hook BotHook) Command {
 	var command *Command = &Command{}
 	targetMessage := hook.Message
 	commandText := targetMessage.Text
@@ -93,7 +102,7 @@ func (e Engine) prepareCommandFromHook(hook BotHook) Command {
 	return *command
 }
 
-func (e Engine) parseCommandFromText(text string) string {
+func (e *Engine) parseCommandFromText(text string) string {
 	command := strings.Split(text, " ")[0]
 	return strings.TrimPrefix(command, "/")
 }

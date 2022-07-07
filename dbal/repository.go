@@ -75,6 +75,19 @@ func (r *botRepository) UpdateYtIdById(ytId string, userId uint64) {
 	r.UpdateUser(user)
 }
 
+func (r *botRepository) FindUserByGitlabId(gitlabId string) *User {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	defer cancel()
+	rows, err := r.connection.QueryContext(ctx, "SELECT * FROM users WHERE `gitlab_id`=?", gitlabId)
+	if err != nil {
+		panic(err)
+	}
+
+	var user Entity = &User{}
+	r.mapRowsOnEntity(rows, &user)
+	return user.(*User)
+}
+
 func (r *botRepository) FindUserByChatId(chatId int) *User {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()

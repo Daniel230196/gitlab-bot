@@ -4,6 +4,7 @@ type BotMessage struct {
 	ChatId      int         `json:"chat_id"`
 	Text        string      `json:"text"`
 	ReplyMarkup ReplyMarkup `json:"reply_markup,omitempty"`
+	ParseMode   string      `json:"parse_mode,omitempty"`
 }
 
 type ReplyMarkup struct {

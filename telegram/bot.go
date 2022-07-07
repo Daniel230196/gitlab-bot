@@ -10,7 +10,7 @@ const (
 
 const (
 	TelegramUrl = "https://api.telegram.org/"
-	Token       = "BOT_TOKEN"
+	Token       = "bot5534393155:AAGQxeWphL8BJGE3PiM1MLrO1rHeqI7MFaM/"
 	sendMessage = "sendMessage"
 
 	commandBindUser   = "bind_user"

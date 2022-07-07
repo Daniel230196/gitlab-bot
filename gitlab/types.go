@@ -6,6 +6,7 @@ type GitlabHook struct {
 	Project          Project          `json:"project"`
 	Repositoty       Repositoty       `json:"repositoty"`
 	ObjectAttributes ObjectAttributes `json:"object_attributes"`
+	MergeRequest     MergeRequest     `json:"merge_request,omitempty"`
 }
 
 type User struct {
@@ -36,4 +37,14 @@ type ObjectAttributes struct {
 	CreatedAt    string `json:"created_at"`
 	UpdatedAt    string `json:"updated_at"`
 	State        string `json:"state"`
+	NoteableType string `json:"noteable_type,omitempty"`
+	Note         string `json:"note,omitempty"`
+	Url          string `json:"url,omitempty"`
+}
+
+type MergeRequest struct {
+	Id           int    `json:"id"`
+	AuthorId     int    `json:"author_id"`
+	TargetBranch string `json:"target_branch"`
+	SourceBranch string `json:"source_branch"`
 }
